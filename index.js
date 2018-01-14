@@ -27,6 +27,8 @@ const moveEasingValues = {
 const styles = StyleSheet.create({
   addButton: {
     borderRadius: 50,
+    height: 56,
+    width: 56,
     alignItems: 'stretch',
     shadowColor: '#000000',
     shadowOpacity: 0.8,
@@ -84,14 +86,14 @@ export default class FAB extends Component {
     const { visible, snackOffset } = this.props;
 
     if (visible) {
-      translateValue.setValue(1);
-    } else {
       translateValue.setValue(0);
+    } else {
+      translateValue.setValue(100);
     }
     if (snackOffset === 0) {
-      shiftValue.setValue(20);
+      shiftValue.setValue(-12);
     } else {
-      shiftValue.setValue(20 + snackOffset);
+      shiftValue.setValue(-12 - snackOffset);
     }
   }
 
@@ -104,8 +106,9 @@ export default class FAB extends Component {
         translateValue,
         {
           duration: durationValues.entry,
-          toValue: 1,
+          toValue: 0,
           easing: sharpEasingValues.entry,
+          useNativeDriver: true,
         },
       ).start();
     } else if ((!nextProps.visible) && (visible)) {
@@ -113,8 +116,9 @@ export default class FAB extends Component {
         translateValue,
         {
           duration: durationValues.exit,
-          toValue: 0,
+          toValue: 100,
           easing: sharpEasingValues.exit,
+          useNativeDriver: true,
         },
       ).start();
     }
@@ -124,8 +128,9 @@ export default class FAB extends Component {
           shiftValue,
           {
             duration: durationValues.exit,
-            toValue: 20,
+            toValue: -12,
             easing: moveEasingValues.exit,
+            useNativeDriver: true,
           },
         ).start();
       } else if (nextProps.snackOffset !== 0) {
@@ -133,8 +138,9 @@ export default class FAB extends Component {
           shiftValue,
           {
             duration: durationValues.entry,
-            toValue: 20 + nextProps.snackOffset,
+            toValue: -12 - nextProps.snackOffset,
             easing: moveEasingValues.entry,
+            useNativeDriver: true,
           },
         ).start();
       }
@@ -152,24 +158,16 @@ export default class FAB extends Component {
       iconTextColor,
     } = this.props;
 
-    const dimensionInterpolate = translateValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 56],
-    });
-
-    const rotateInterpolate = translateValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['-90deg', '0deg'],
-    });
-
     return (
-      <Animated.View style={[styles.fab_box, { bottom: shiftValue }]}>
+      <Animated.View style={[styles.fab_box, {
+        transform: [
+          { translateY: shiftValue },
+          { translateX: translateValue },
+        ]
+      }]}>
         <Animated.View
           style={[
-            styles.addButton, {
-              height: dimensionInterpolate,
-              width: dimensionInterpolate,
-            },
+            styles.addButton
           ]}
         >
           <Touchable
@@ -177,20 +175,18 @@ export default class FAB extends Component {
             style={styles.addButtonInnerView}
             buttonColor={buttonColor}
           >
-            <Animated.Text
+            <Text
               style={{
-                transform: [
-                  { scaleX: translateValue },
-                  { rotate: rotateInterpolate },
-                ],
                 fontSize: 24,
               }}
             >
-              {React.cloneElement(iconTextComponent, { style: {
-                fontSize: 24,
-                color: iconTextColor,
-              } })}
-            </Animated.Text>
+              {React.cloneElement(iconTextComponent, {
+                style: {
+                  fontSize: 24,
+                  color: iconTextColor,
+                }
+              })}
+            </Text>
           </Touchable>
         </Animated.View>
       </Animated.View>
